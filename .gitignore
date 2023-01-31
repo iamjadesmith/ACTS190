@@ -7,3 +7,5 @@ cases.csv
 ACTS190.Rproj
 stats.csv
 .DS_Store
+.RMd
+.html
