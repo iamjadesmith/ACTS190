@@ -2,12 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
-stat.csv
-cases.csv
-stats.csv
 .DS_Store
 *.RMd
 *.html
 "Acts Project.R"
 *.docx
-cyber.csv
+*.csv
