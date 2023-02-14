@@ -14,5 +14,3 @@ cyber <- subset(cyber, select = c(ACD, CREATION_DATE, LAST_MODIFIED_DATE, COMPAN
 
 #removes columns if there are more than 100,000 NAs in the column
 # cyber <- cyber[,colSums(is.na(cyber))<100000]
-
-#this is a comment
