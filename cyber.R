@@ -15,7 +15,7 @@ cases <- subset(cases, select = c(COMPANY_ID, ACD, CREATION_DATE, LAST_MODIFIED_
 stats <- read.csv("stats.csv", sep = "|")
 
 # Picking columns from the other data set
-stats <- subset(stats, select = c(COMPANY_ID, COMPANY_STATUS, SIC, EMPLOYEES, REVENUES, NAIC_SECTOR))
+stats <- subset(stats, select = c(COMPANY_ID, COMPANY_STATUS, EMPLOYEES, REVENUES, NAIC_SECTOR))
 
 
 cyber <- merge(cases, stats, by = "COMPANY_ID")
