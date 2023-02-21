@@ -20,3 +20,5 @@ stats <- subset(stats, select = c(COMPANY_ID, COMPANY_STATUS, EMPLOYEES, REVENUE
 
 cyber <- merge(cases, stats, by = "COMPANY_ID")
 
+# Only keeping the observations that contain a settlement amount
+cyber <- cyber[!is.na(cyber$SETTLEMENT_AMOUNT),]
