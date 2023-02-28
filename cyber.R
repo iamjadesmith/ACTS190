@@ -1,6 +1,5 @@
 rm(list = ls())
-
-# Import Libraries
+#load packages
 library(rpart)
 library(rpart.plot)
 library(ggplot2)
@@ -25,6 +24,7 @@ stats <- read.csv("stats.csv", sep = "|")
 # Picking columns from the other data set
 stats <- subset(stats, select = c(COMPANY_ID, COMPANY_STATUS, EMPLOYEES, REVENUES, NAIC_SECTOR))
 
+
 cyber <- merge(cases, stats, by = "COMPANY_ID")
 
 # Only keeping the observations that contain a settlement amount
@@ -46,6 +46,46 @@ cyber$JURIS_COUNTRY_CODE <- as.factor(cyber$JURIS_COUNTRY_CODE)
 cyber$COMPANY_STATUS <- as.factor(cyber$COMPANY_STATUS)
 cyber$NAIC_SECTOR <- as.factor(cyber$NAIC_SECTOR)
 
+
+# Scatterplot matrix 
+sub = subset(cyber, select = c("REVENUES", "FINANCIAL_DAMAGES_AMT", "SETTLEMENT_AMOUNT"))
+sub = sub[complete.cases(sub),]
+cor(sub)
+vars = data.frame(sub$REVENUES, sub$FINANCIAL_DAMAGES_AMT, sub$SETTLEMENT_AMOUNT)
+cor(cbind(vars), use = "pairwise.complete.obs")
+pairs(vars, upper.panel=NULL)
+
+#Histograms 
+hist(cyber$REVENUES)
+hist(cyber$FINANCIAL_DAMAGES_AMT)
+hist(cyber$SETTLEMENT_AMOUNT)
+
+cyber %>%
+  ggplot(aes(x = CASE_TYPE)) +
+  ggtitle("Case Type Frequency")+
+  labs(x = "Type of cases", y = "Number of cases ") +
+  geom_bar(fill = "#99d8c9")+
+  coord_flip ()
+
+cyber %>%
+  ggplot(aes(x = CASESTATUS)) +
+  ggtitle("Case Status Frequency")+
+  labs(x = "Status", y = "Count ") +
+  geom_bar(fill = "#99d8c9")+
+  coord_flip ()
+
+cyber %>%
+  ggplot(aes(x = JURIS_TRIGGER)) +
+  ggtitle("Trigger Frequency")+
+  labs(x = "Trigger", y = "Count ") +
+  geom_bar(fill = "#99d8c9")
+
+cyber %>%
+  ggplot(aes(x = NAIC_SECTOR )) +
+  ggtitle("NAIC Sector Frequency")+
+  labs(x = "Sectors", y = "Count ") +
+  geom_bar(fill = "#99d8c9")
+
 # Putting Case Type into less factors:
 cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Data - Malicious Breach", "Data - Physically Lost or Stolen",
                                        "Data - Unintentional Disclosure")] <- "Data"
@@ -54,8 +94,6 @@ cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Privacy - Unauthorized Contact or Disclo
                                        "Privacy - Unauthorized Data Collection")] <- "Privacy"
 
 # cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
-
-# Exploratory Analysis ----
 
 # Plotting Financial Damages Amount
 ggplot(data = cyber) +
