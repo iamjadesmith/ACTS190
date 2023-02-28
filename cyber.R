@@ -17,7 +17,6 @@ stats <- read.csv("stats.csv", sep = "|")
 # Picking columns from the other data set
 stats <- subset(stats, select = c(COMPANY_ID, COMPANY_STATUS, EMPLOYEES, REVENUES, NAIC_SECTOR))
 
-
 cyber <- merge(cases, stats, by = "COMPANY_ID")
 
 # Only keeping the observations that contain a settlement amount
