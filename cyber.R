@@ -22,3 +22,19 @@ cyber <- merge(cases, stats, by = "COMPANY_ID")
 
 # Only keeping the observations that contain a settlement amount
 cyber <- cyber[!is.na(cyber$SETTLEMENT_AMOUNT),]
+
+# remove other columns we don't want
+cyber <- subset(cyber, select = -c(COMPANY_ID, CASE_DESCRIPTION, CASE_CATEGORY, PRODUCT_SERVICE_INVOLVED,
+                                   FIRST_NOTICE_DATE, FIRST_NOTICE_DATE_QUALIFIER, PROXIMATE_CAUSE, 
+                                   SECONDARY_CAUSE, AFFECTED_COUNT))
+
+# making variables factors
+cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
+cyber$CLASS_COLLECTIVE_ACTION <- as.factor(cyber$CLASS_COLLECTIVE_ACTION)
+cyber$COUNTRY_CODE <- as.factor(cyber$COUNTRY_CODE)
+cyber$CASESTATUS <- as.factor(cyber$CASESTATUS)
+cyber$FILING_YEAR <- as.factor(cyber$FILING_YEAR)
+cyber$JURIS_TRIGGER <- as.factor(cyber$JURIS_TRIGGER)
+cyber$JURIS_COUNTRY_CODE <- as.factor(cyber$JURIS_COUNTRY_CODE)
+cyber$COMPANY_STATUS <- as.factor(cyber$COMPANY_STATUS)
+cyber$NAIC_SECTOR <- as.factor(cyber$NAIC_SECTOR)
