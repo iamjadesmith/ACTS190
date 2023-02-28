@@ -1,5 +1,13 @@
 rm(list = ls())
 
+# Import Libraries
+library(rpart)
+library(rpart.plot)
+library(ggplot2)
+library(pROC)
+library(RColorBrewer)
+library(dplyr)
+
 cases <- read.csv("cases.csv", sep = "|")
 
 # Keeping only the columns that we want
@@ -28,7 +36,7 @@ cyber <- subset(cyber, select = -c(COMPANY_ID, CASE_DESCRIPTION, CASE_CATEGORY, 
                                    SECONDARY_CAUSE, AFFECTED_COUNT))
 
 # making variables factors
-cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
+
 cyber$CLASS_COLLECTIVE_ACTION <- as.factor(cyber$CLASS_COLLECTIVE_ACTION)
 cyber$COUNTRY_CODE <- as.factor(cyber$COUNTRY_CODE)
 cyber$CASESTATUS <- as.factor(cyber$CASESTATUS)
@@ -37,3 +45,22 @@ cyber$JURIS_TRIGGER <- as.factor(cyber$JURIS_TRIGGER)
 cyber$JURIS_COUNTRY_CODE <- as.factor(cyber$JURIS_COUNTRY_CODE)
 cyber$COMPANY_STATUS <- as.factor(cyber$COMPANY_STATUS)
 cyber$NAIC_SECTOR <- as.factor(cyber$NAIC_SECTOR)
+
+# Putting Case Type into less factors:
+cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Data - Malicious Breach", "Data - Physically Lost or Stolen",
+                                       "Data - Unintentional Disclosure")] <- "Data"
+cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("IT - Configuration/Implementation Errors", "IT - Processing Errors")] <- "IT"
+cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Privacy - Unauthorized Contact or Disclosure",
+                                       "Privacy - Unauthorized Data Collection")] <- "Privacy"
+# cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
+
+# Exploratory Analysis ----
+
+# Plotting Financial Damages Amount
+ggplot(data = cyber) +
+  geom_histogram(aes(x = FINANCIAL_DAMAGES_AMT))
+# Very right skewed. Will try a log transformation
+ggplot(data = cyber) +
+  geom_histogram(aes(x = log(FINANCIAL_DAMAGES_AMT)))
+# This looks much better, will stick with log(FINANCIAL_DAMAGES_AMT)
+cyber$FINANCIAL_DAMAGES_AMT <- log(cyber$FINANCIAL_DAMAGES_AMT)
