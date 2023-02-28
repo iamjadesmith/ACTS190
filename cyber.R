@@ -46,6 +46,16 @@ cyber$JURIS_COUNTRY_CODE <- as.factor(cyber$JURIS_COUNTRY_CODE)
 cyber$COMPANY_STATUS <- as.factor(cyber$COMPANY_STATUS)
 cyber$NAIC_SECTOR <- as.factor(cyber$NAIC_SECTOR)
 
+# Putting Case Type into less factors:
+cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Data - Malicious Breach", "Data - Physically Lost or Stolen",
+                                       "Data - Unintentional Disclosure")] <- "Data"
+cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("IT - Configuration/Implementation Errors", "IT - Processing Errors")] <- "IT"
+cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Privacy - Unauthorized Contact or Disclosure",
+                                       "Privacy - Unauthorized Data Collection")] <- "Privacy"
+
+# cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
+
+# Exploratory Analysis ----
 
 # Scatterplot matrix 
 sub = subset(cyber, select = c("REVENUES", "FINANCIAL_DAMAGES_AMT", "SETTLEMENT_AMOUNT"))
@@ -85,15 +95,6 @@ cyber %>%
   ggtitle("NAIC Sector Frequency")+
   labs(x = "Sectors", y = "Count ") +
   geom_bar(fill = "#99d8c9")
-
-# Putting Case Type into less factors:
-cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Data - Malicious Breach", "Data - Physically Lost or Stolen",
-                                       "Data - Unintentional Disclosure")] <- "Data"
-cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("IT - Configuration/Implementation Errors", "IT - Processing Errors")] <- "IT"
-cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Privacy - Unauthorized Contact or Disclosure",
-                                       "Privacy - Unauthorized Data Collection")] <- "Privacy"
-
-# cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
 
 # Plotting Financial Damages Amount
 ggplot(data = cyber) +
