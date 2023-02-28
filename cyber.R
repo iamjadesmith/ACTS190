@@ -52,6 +52,7 @@ cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Data - Malicious Breach", "Data - Physic
 cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("IT - Configuration/Implementation Errors", "IT - Processing Errors")] <- "IT"
 cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Privacy - Unauthorized Contact or Disclosure",
                                        "Privacy - Unauthorized Data Collection")] <- "Privacy"
+
 # cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
 
 # Exploratory Analysis ----
