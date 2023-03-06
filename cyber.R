@@ -58,6 +58,7 @@ cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Privacy - Unauthorized Contact or Disclo
                                        "Privacy - Unauthorized Data Collection")] <- "Privacy"
 
 cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
+cyber$NAIC_SECTOR <- as.factor(cyber$NAIC_SECTOR)
 
 # Exploratory Analysis ----
 
@@ -94,6 +95,13 @@ cyber %>%
   ggtitle("NAIC Sector Frequency")+
   labs(x = "Sectors", y = "Count ") +
   geom_bar(fill = "#99d8c9")
+
+cyber %>%
+  ggplot(aes(x = FILING_YEAR)) +
+  ggtitle("Filing Year")+
+  labs(x = "Filing Year", y = "Number of cases ") +
+  geom_bar(fill = "#99d8c9") +
+  coord_flip()
 
 
 # Financial Damages Amount
