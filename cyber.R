@@ -114,8 +114,8 @@ cyber %>%
 cyber %>%
   ggplot() +
   geom_histogram(aes(x = log(FINANCIAL_DAMAGES_AMT + 1)), fill = "#99d8c9") +
-  ggtitle("Histogram of Log(Financial Damages Amount)") +
-  labs(x = "Log(Financial Damages)", y = "Frequency")
+  ggtitle("Histogram of Log(Financial Damages Amount + 1)") +
+  labs(x = "Log(Financial Damages + 1)", y = "Frequency")
 # This looks much better, will stick with log(FINANCIAL_DAMAGES_AMT)
 cyber$LOG_FINANCIAL_DAMAGES <- log(cyber$FINANCIAL_DAMAGES_AMT + 1)
 
@@ -125,14 +125,14 @@ cyber %>%
   geom_histogram(aes(x = REVENUES), fill = "#99d8c9") +
   ggtitle("Histogram of Revenues") +
   labs(x = "Revenues", y = "Frequency")
-# Log transformation
+# Log transformationX
 cyber %>%
   ggplot() +
-  geom_histogram(aes(x = log(REVENUES + 1)), fill = "#99d8c9") +
+  geom_histogram(aes(x = log(REVENUES)), fill = "#99d8c9") +
   ggtitle("Histogram of Log(Revenues)") +
   labs(x = "Log(Revenues)", y = "Frequency")
 # Looks Great
-cyber$LOG_REVENUES <- log(cyber$REVENUES + 1)
+cyber$LOG_REVENUES <- log(cyber$REVENUES)
 
 # Y Variable - Settlement Amount
 cyber %>%
@@ -144,7 +144,7 @@ cyber %>%
 cyber %>%
   ggplot() +
   geom_histogram(aes(x = log(SETTLEMENT_AMOUNT + 1)), fill = "#99d8c9") +
-  ggtitle("Histogram of Log(Settlement Amount)") +
-  labs(x = "Log(Settlement Amount)", y = "Frequency")
+  ggtitle("Histogram of Log(Settlement Amount + 1)") +
+  labs(x = "Log(Settlement Amount + 1)", y = "Frequency")
 # Much better
 cyber$LOG_SETTLEMENT_AMOUNT <- log(cyber$SETTLEMENT_AMOUNT + 1)
