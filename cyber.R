@@ -49,11 +49,15 @@ cyber$NAIC_SECTOR <- as.factor(cyber$NAIC_SECTOR)
 # Putting Case Type into less factors:
 cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Data - Malicious Breach", "Data - Physically Lost or Stolen",
                                        "Data - Unintentional Disclosure")] <- "Data"
-cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("IT - Configuration/Implementation Errors", "IT - Processing Errors")] <- "IT"
+cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("IT - Configuration/Implementation Errors", "IT - Processing Errors",
+                                       "Identity - Fraudulent Use/Account Access", 
+                                       "Phishing, Spoofing, Social Engineering", "Network/Website Disruption",
+                                       "Skimming, Physical Tampering", "Undetermined/Other",
+                                       "Cyber Extortion", "Industrial Controls & Operations")] <- "Other"
 cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Privacy - Unauthorized Contact or Disclosure",
                                        "Privacy - Unauthorized Data Collection")] <- "Privacy"
 
-# cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
+cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
 
 # Exploratory Analysis ----
 
@@ -64,11 +68,6 @@ cor(sub)
 vars = data.frame(sub$REVENUES, sub$FINANCIAL_DAMAGES_AMT, sub$SETTLEMENT_AMOUNT)
 cor(cbind(vars), use = "pairwise.complete.obs")
 pairs(vars, upper.panel=NULL)
-
-#Histograms 
-hist(cyber$REVENUES)
-hist(cyber$FINANCIAL_DAMAGES_AMT)
-hist(cyber$SETTLEMENT_AMOUNT)
 
 cyber %>%
   ggplot(aes(x = CASE_TYPE)) +
@@ -96,11 +95,48 @@ cyber %>%
   labs(x = "Sectors", y = "Count ") +
   geom_bar(fill = "#99d8c9")
 
-# Plotting Financial Damages Amount
-ggplot(data = cyber) +
-  geom_histogram(aes(x = FINANCIAL_DAMAGES_AMT))
+
+# Financial Damages Amount
+cyber %>%
+  ggplot() +
+  geom_histogram(aes(x = FINANCIAL_DAMAGES_AMT), fill = "#99d8c9") +
+  ggtitle("Histogram of Financial Damages Amount") +
+  labs(x = "Financial Damages", y = "Frequency")
 # Very right skewed. Will try a log transformation
-ggplot(data = cyber) +
-  geom_histogram(aes(x = log(FINANCIAL_DAMAGES_AMT)))
+cyber %>%
+  ggplot() +
+  geom_histogram(aes(x = log(FINANCIAL_DAMAGES_AMT + 1)), fill = "#99d8c9") +
+  ggtitle("Histogram of Log(Financial Damages Amount)") +
+  labs(x = "Log(Financial Damages)", y = "Frequency")
 # This looks much better, will stick with log(FINANCIAL_DAMAGES_AMT)
-cyber$FINANCIAL_DAMAGES_AMT <- log(cyber$FINANCIAL_DAMAGES_AMT)
+cyber$LOG_FINANCIAL_DAMAGES <- log(cyber$FINANCIAL_DAMAGES_AMT + 1)
+
+# Revenues
+cyber %>%
+  ggplot() +
+  geom_histogram(aes(x = REVENUES), fill = "#99d8c9") +
+  ggtitle("Histogram of Revenues") +
+  labs(x = "Revenues", y = "Frequency")
+# Log transformation
+cyber %>%
+  ggplot() +
+  geom_histogram(aes(x = log(REVENUES + 1)), fill = "#99d8c9") +
+  ggtitle("Histogram of Log(Revenues)") +
+  labs(x = "Log(Revenues)", y = "Frequency")
+# Looks Great
+cyber$LOG_REVENUES <- log(cyber$REVENUES + 1)
+
+# Y Variable - Settlement Amount
+cyber %>%
+  ggplot() +
+  geom_histogram(aes(x = SETTLEMENT_AMOUNT), fill = "#99d8c9") +
+  ggtitle("Histogram of Settlement Amount") +
+  labs(x = "Settlement Amount", y = "Frequency")
+# Trying a log transformation again
+cyber %>%
+  ggplot() +
+  geom_histogram(aes(x = log(SETTLEMENT_AMOUNT + 1)), fill = "#99d8c9") +
+  ggtitle("Histogram of Log(Settlement Amount)") +
+  labs(x = "Log(Settlement Amount)", y = "Frequency")
+# Much better
+cyber$LOG_SETTLEMENT_AMOUNT <- log(cyber$SETTLEMENT_AMOUNT + 1)
