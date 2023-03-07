@@ -134,6 +134,21 @@ cyber %>%
 # Looks Great
 cyber$LOG_REVENUES <- log(cyber$REVENUES)
 
+# Employees
+cyber %>%
+  ggplot() +
+  geom_histogram(aes(x = EMPLOYEES), fill = "#99d8c9") +
+  ggtitle("Histogram of Employees") +
+  labs(x = "Number of Employees", y = "Frequency")
+# Log Transformation
+cyber %>%
+  ggplot() +
+  geom_histogram(aes(x = log(EMPLOYEES)), fill = "#99d8c9") +
+  ggtitle("Histogram of Log(Employees)") +
+  labs(x = "Log(Employees)", y = "Frequency")
+# Better
+cyber$LOG_EMPLOYEES <- log(cyber$EMPLOYEES)
+
 # Y Variable - Settlement Amount
 cyber %>%
   ggplot() +
