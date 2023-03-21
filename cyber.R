@@ -163,3 +163,6 @@ cyber %>%
   labs(x = "Log(Settlement Amount + 1)", y = "Frequency")
 # Much better
 cyber$LOG_SETTLEMENT_AMOUNT <- log(cyber$SETTLEMENT_AMOUNT + 1)
+
+# Random Forest ----
+
