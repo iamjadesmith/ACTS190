@@ -6,6 +6,8 @@ library(ggplot2)
 library(pROC)
 library(RColorBrewer)
 library(dplyr)
+library(randomForest)
+library(statmod)
 
 cases <- read.csv("cases.csv", sep = "|")
 
@@ -132,7 +134,7 @@ cyber %>%
   ggtitle("Histogram of Log(Revenues)") +
   labs(x = "Log(Revenues)", y = "Frequency")
 # Looks Great
-cyber$LOG_REVENUES <- log(cyber$REVENUES)
+cyber$LOG_REVENUES <- log(cyber$REVENUES + 1)
 
 # Employees
 cyber %>%
@@ -147,7 +149,7 @@ cyber %>%
   ggtitle("Histogram of Log(Employees)") +
   labs(x = "Log(Employees)", y = "Frequency")
 # Better
-cyber$LOG_EMPLOYEES <- log(cyber$EMPLOYEES)
+cyber$LOG_EMPLOYEES <- log(cyber$EMPLOYEES + 1)
 
 # Y Variable - Settlement Amount
 cyber %>%
@@ -164,5 +166,26 @@ cyber %>%
 # Much better
 cyber$LOG_SETTLEMENT_AMOUNT <- log(cyber$SETTLEMENT_AMOUNT + 1)
 
+cyber_cleaned <- subset(cyber, select = c(ACD, COUNTRY_CODE, CASE_TYPE, CLASS_COLLECTIVE_ACTION,
+                                          CASESTATUS, FILING_YEAR, JURIS_TRIGGER, LOG_SETTLEMENT_AMOUNT, LOG_EMPLOYEES,
+                                          LOG_REVENUES, NAIC_SECTOR, COMPANY_STATUS))
+cyber_cleaned <- na.omit(cyber_cleaned)
 # Random Forest ----
 
+# RNGkind(sample.kind = "default")
+# set.seed(1239845)
+# train.idx <- sample(x = 1:nrow(cyber), size = .7*nrow(cyber))
+# train.df <- cyber[train.idx, ]
+# test.df <- cyber[-train.idx, ]
+# 
+# base_forest <- randomForest(SETTLEMENT_AMOUNT ~ . ,
+#                             data = train.df,
+#                             ntree = 1000,
+#                             mtry = 5,
+#                             importance = TRUE)
+
+# Tweedie Model ----
+
+# Base Tweedie Model
+m1 <- glm(LOG_SETTLEMENT_AMOUNT ~ ., data = cyber_cleaned, 
+          family = tweedie(var.power=0,link.power=1))
