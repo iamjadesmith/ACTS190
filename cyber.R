@@ -8,6 +8,7 @@ library(RColorBrewer)
 library(dplyr)
 library(randomForest)
 library(statmod)
+library(tweedie)
 
 cases <- read.csv("cases.csv", sep = "|")
 
@@ -36,6 +37,8 @@ cyber <- cyber[!is.na(cyber$SETTLEMENT_AMOUNT),]
 cyber <- subset(cyber, select = -c(COMPANY_ID, CASE_DESCRIPTION, CASE_CATEGORY, PRODUCT_SERVICE_INVOLVED,
                                    FIRST_NOTICE_DATE, FIRST_NOTICE_DATE_QUALIFIER, PROXIMATE_CAUSE, 
                                    SECONDARY_CAUSE, AFFECTED_COUNT))
+
+cyber <- cyber[cyber$FILING_YEAR > 2004,]
 
 # making variables factors
 
@@ -170,6 +173,7 @@ cyber_cleaned <- subset(cyber, select = c(ACD, COUNTRY_CODE, CASE_TYPE, CLASS_CO
                                           CASESTATUS, FILING_YEAR, JURIS_TRIGGER, LOG_SETTLEMENT_AMOUNT, LOG_EMPLOYEES,
                                           LOG_REVENUES, NAIC_SECTOR, COMPANY_STATUS))
 cyber_cleaned <- na.omit(cyber_cleaned)
+cyber_cleaned <- cyber_cleaned[cyber_cleaned$COUNTRY_CODE=="USA",]
 # Random Forest ----
 
 # RNGkind(sample.kind = "default")
@@ -187,5 +191,22 @@ cyber_cleaned <- na.omit(cyber_cleaned)
 # Tweedie Model ----
 
 # Base Tweedie Model
-m1 <- glm(LOG_SETTLEMENT_AMOUNT ~ ., data = cyber_cleaned, 
+m0 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
+            CASESTATUS + JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES +
+            NAIC_SECTOR + COMPANY_STATUS, data = cyber_cleaned, 
           family = tweedie(var.power=0,link.power=1))
+summary(m0)
+# Deviance: 7820
+
+m1 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
+            CASESTATUS + JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES +
+            COMPANY_STATUS, data = cyber_cleaned,
+          family = tweedie(var.power=0,link.power=1))
+summary(m1)
+# Deviance: 7842
+m2 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
+            CASESTATUS + JURIS_TRIGGER + LOG_REVENUES +
+            COMPANY_STATUS, data = cyber_cleaned,
+          family = tweedie(var.power=0,link.power=1))
+summary(m2)
+# Deviance: 7843
