@@ -200,9 +200,7 @@ m0 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
           family = tweedie(var.power=1.1,link.power=0))
 summary(m0)
 AICtweedie(m0)
-rsq(m0)
 # AIC: 7428.524
-# R Squared: .9456952
 
 # Throwing out NAIC_Sector
 m1 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
@@ -211,9 +209,7 @@ m1 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
           family = tweedie(var.power=1.1,link.power=0))
 summary(m1)
 AICtweedie(m1)
-rsq(m1)
 # AIC: 7425.896
-# R Squared: 0.9429241
 # AIC went down, so leaving NAIC sector out of the final model
 
 # Throwing out CASESTATUS
@@ -223,10 +219,8 @@ m2 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
           family = tweedie(var.power=1.1,link.power=0))
 summary(m2)
 AICtweedie(m2)
-rsq(m2)
 # AIC: 11250.62
-# R Squared: 0.2699434
-# AIC went way up and R squared went way down, so keeping
+# AIC went way up, so keeping
 
 # Going to stick with Model 1 as the final model with the variables we have
 # results <- predict(m1, newdata = test.df)
