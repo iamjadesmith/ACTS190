@@ -9,6 +9,7 @@ library(dplyr)
 library(randomForest)
 library(statmod)
 library(tweedie)
+library(rsq)
 
 cases <- read.csv("cases.csv", sep = "|")
 
@@ -39,7 +40,9 @@ cyber <- subset(cyber, select = -c(COMPANY_ID, CASE_DESCRIPTION, CASE_CATEGORY, 
                                    SECONDARY_CAUSE, AFFECTED_COUNT))
 
 cyber <- cyber[cyber$FILING_YEAR > 2004,]
-
+cyber <- cyber[cyber$ACD!="",]
+cyber <- cyber[cyber$COUNTRY_CODE=="USA",]
+cyber<- cyber[cyber$JURIS_TRIGGER!="",]
 # making variables factors
 
 cyber$CLASS_COLLECTIVE_ACTION <- as.factor(cyber$CLASS_COLLECTIVE_ACTION)
@@ -169,18 +172,18 @@ cyber %>%
 # Much better
 cyber$LOG_SETTLEMENT_AMOUNT <- log(cyber$SETTLEMENT_AMOUNT + 1)
 
+cyber$ACD <- as.factor(cyber$ACD)
 cyber_cleaned <- subset(cyber, select = c(ACD, COUNTRY_CODE, CASE_TYPE, CLASS_COLLECTIVE_ACTION,
                                           CASESTATUS, FILING_YEAR, JURIS_TRIGGER, LOG_SETTLEMENT_AMOUNT, LOG_EMPLOYEES,
                                           LOG_REVENUES, NAIC_SECTOR, COMPANY_STATUS))
 cyber_cleaned <- na.omit(cyber_cleaned)
-cyber_cleaned <- cyber_cleaned[cyber_cleaned$COUNTRY_CODE=="USA",]
 # Random Forest ----
 
-# RNGkind(sample.kind = "default")
-# set.seed(1239845)
-# train.idx <- sample(x = 1:nrow(cyber), size = .7*nrow(cyber))
-# train.df <- cyber[train.idx, ]
-# test.df <- cyber[-train.idx, ]
+RNGkind(sample.kind = "default")
+set.seed(1239845)
+train.idx <- sample(x = 1:nrow(cyber_cleaned), size = .7*nrow(cyber_cleaned))
+train.df <- cyber_cleaned[train.idx, ]
+test.df <- cyber_cleaned[-train.idx, ]
 # 
 # base_forest <- randomForest(SETTLEMENT_AMOUNT ~ . ,
 #                             data = train.df,
@@ -193,20 +196,37 @@ cyber_cleaned <- cyber_cleaned[cyber_cleaned$COUNTRY_CODE=="USA",]
 # Base Tweedie Model
 m0 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
             CASESTATUS + JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES +
-            NAIC_SECTOR + COMPANY_STATUS, data = cyber_cleaned, 
-          family = tweedie(var.power=0,link.power=1))
+            NAIC_SECTOR + COMPANY_STATUS, data = train.df, 
+          family = tweedie(var.power=1.1,link.power=0))
 summary(m0)
-# Deviance: 7820
+AICtweedie(m0)
+rsq(m0)
+# AIC: 7428.524
+# R Squared: .9456952
 
+# Throwing out NAIC_Sector
 m1 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
             CASESTATUS + JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES +
-            COMPANY_STATUS, data = cyber_cleaned,
-          family = tweedie(var.power=0,link.power=1))
+            COMPANY_STATUS, data = train.df, 
+          family = tweedie(var.power=1.1,link.power=0))
 summary(m1)
-# Deviance: 7842
+AICtweedie(m1)
+rsq(m1)
+# AIC: 7425.896
+# R Squared: 0.9429241
+# AIC went down, so leaving NAIC sector out of the final model
+
+# Throwing out CASESTATUS
 m2 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
-            CASESTATUS + JURIS_TRIGGER + LOG_REVENUES +
-            COMPANY_STATUS, data = cyber_cleaned,
-          family = tweedie(var.power=0,link.power=1))
+            JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES +
+            COMPANY_STATUS, data = train.df, 
+          family = tweedie(var.power=1.1,link.power=0))
 summary(m2)
-# Deviance: 7843
+AICtweedie(m2)
+rsq(m2)
+# AIC: 11250.62
+# R Squared: 0.2699434
+# AIC went way up and R squared went way down, so keeping
+
+# Going to stick with Model 1 as the final model with the variables we have
+# results <- predict(m1, newdata = test.df)
