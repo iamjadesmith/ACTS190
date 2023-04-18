@@ -68,6 +68,10 @@ cyber$CASE_TYPE[cyber$CASE_TYPE %in% c("Privacy - Unauthorized Contact or Disclo
 cyber$CASE_TYPE <- as.factor(cyber$CASE_TYPE)
 cyber$NAIC_SECTOR <- as.factor(cyber$NAIC_SECTOR)
 
+cyber <- cyber[cyber$CASESTATUS != 'Pending',]
+cyber <- cyber[cyber$CASESTATUS != 'Stayed',]
+cyber <- cyber[cyber$CASESTATUS != 'Transferred to MDL',]
+
 # Exploratory Analysis ----
 
 # Scatterplot matrix 
@@ -184,6 +188,8 @@ set.seed(1239845)
 train.idx <- sample(x = 1:nrow(cyber_cleaned), size = .7*nrow(cyber_cleaned))
 train.df <- cyber_cleaned[train.idx, ]
 test.df <- cyber_cleaned[-train.idx, ]
+test.df <- test.df[test.df$CASESTATUS != 'Pending',]
+
 # 
 # base_forest <- randomForest(SETTLEMENT_AMOUNT ~ . ,
 #                             data = train.df,
@@ -223,4 +229,15 @@ AICtweedie(m2)
 # AIC went way up, so keeping
 
 # Going to stick with Model 1 as the final model with the variables we have
-# results <- predict(m1, newdata = test.df)
+
+#MSE Model 0
+resultsm0 <- predict(m0, newdata = test.df, allow.new.levels=TRUE)
+mean((test.df$LOG_SETTLEMENT_AMOUNT - resultsm0)^2)
+
+#MSE Model 1
+resultsm1 <- predict(m1, newdata = test.df, allow.new.levels=TRUE)
+mean((test.df$LOG_SETTLEMENT_AMOUNT - resultsm1)^2)
+
+#MSE Model 2
+resultsm2 <- predict(m2, newdata = test.df, allow.new.levels=TRUE)
+mean((test.df$LOG_SETTLEMENT_AMOUNT - resultsm2)^2)
