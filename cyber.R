@@ -184,7 +184,7 @@ cyber_cleaned <- na.omit(cyber_cleaned)
 # Random Forest ----
 
 RNGkind(sample.kind = "default")
-set.seed(1239845)
+set.seed(1239827)
 train.idx <- sample(x = 1:nrow(cyber_cleaned), size = .7*nrow(cyber_cleaned))
 train.df <- cyber_cleaned[train.idx, ]
 test.df <- cyber_cleaned[-train.idx, ]
@@ -200,7 +200,7 @@ test.df <- test.df[test.df$CASESTATUS != 'Pending',]
 # Tweedie Model ----
 
 # Base Tweedie Model
-m0 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
+m0 <- glm(LOG_SETTLEMENT_AMOUNT ~ CASE_TYPE + CLASS_COLLECTIVE_ACTION +
             CASESTATUS + JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES +
             NAIC_SECTOR + COMPANY_STATUS, data = train.df, 
           family = tweedie(var.power=1.1,link.power=0))
@@ -209,7 +209,7 @@ AICtweedie(m0)
 # AIC: 7428.524
 
 # Throwing out NAIC_Sector
-m1 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
+m1 <- glm(LOG_SETTLEMENT_AMOUNT ~ CASE_TYPE + CLASS_COLLECTIVE_ACTION +
             CASESTATUS + JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES +
             COMPANY_STATUS, data = train.df, 
           family = tweedie(var.power=1.1,link.power=0))
@@ -219,7 +219,7 @@ AICtweedie(m1)
 # AIC went down, so leaving NAIC sector out of the final model
 
 # Throwing out CASESTATUS
-m2 <- glm(LOG_SETTLEMENT_AMOUNT ~ ACD + CASE_TYPE + CLASS_COLLECTIVE_ACTION +
+m2 <- glm(LOG_SETTLEMENT_AMOUNT ~  CASE_TYPE + CLASS_COLLECTIVE_ACTION +
             JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES +
             COMPANY_STATUS, data = train.df, 
           family = tweedie(var.power=1.1,link.power=0))
@@ -231,13 +231,19 @@ AICtweedie(m2)
 # Going to stick with Model 1 as the final model with the variables we have
 
 #MSE Model 0
-resultsm0 <- predict(m0, newdata = test.df, allow.new.levels=TRUE)
+resultsm0 <- predict(m0, newdata = test.df)
 mean((test.df$LOG_SETTLEMENT_AMOUNT - resultsm0)^2)
 
 #MSE Model 1
-resultsm1 <- predict(m1, newdata = test.df, allow.new.levels=TRUE)
+resultsm1 <- predict(m1, newdata = test.df)
 mean((test.df$LOG_SETTLEMENT_AMOUNT - resultsm1)^2)
 
 #MSE Model 2
-resultsm2 <- predict(m2, newdata = test.df, allow.new.levels=TRUE)
+resultsm2 <- predict(m2, newdata = test.df)
 mean((test.df$LOG_SETTLEMENT_AMOUNT - resultsm2)^2)
+
+#Scatterplot of Model 2
+plot(test.df$LOG_SETTLEMENT_AMOUNT, ((test.df$LOG_SETTLEMENT_AMOUNT-resultsm2)^2), main = "Scatterplot of Results",
+     xlab = "Log Settlement Amount", ylab = "Squared Error")
+
+final_results <- data.frame(test.df$LOG_SETTLEMENT_AMOUNT, resultsm2, (test.df$LOG_SETTLEMENT_AMOUNT-resultsm2)^2)
