@@ -247,3 +247,46 @@ plot(test.df$LOG_SETTLEMENT_AMOUNT, ((test.df$LOG_SETTLEMENT_AMOUNT-resultsm2)^2
      xlab = "Log Settlement Amount", ylab = "Squared Error")
 
 final_results <- data.frame(test.df$LOG_SETTLEMENT_AMOUNT, resultsm2, (test.df$LOG_SETTLEMENT_AMOUNT-resultsm2)^2)
+
+### Making a model that predicts the of the settlement amount if there is a settlement amount
+
+cyber_not_zero <- cyber_cleaned[cyber_cleaned$LOG_SETTLEMENT_AMOUNT != 0,]
+cyber_not_zero <- subset(cyber_not_zero, select = c(CASE_TYPE, CLASS_COLLECTIVE_ACTION,
+                                                    CASESTATUS, JURIS_TRIGGER, LOG_SETTLEMENT_AMOUNT,
+                                                    LOG_EMPLOYEES, LOG_REVENUES, NAIC_SECTOR,
+                                                    COMPANY_STATUS))
+
+RNGkind(sample.kind = "default")
+set.seed(1239828)
+train.idx <- sample(x = 1:nrow(cyber_not_zero), size = .8*nrow(cyber_not_zero))
+train.df <- cyber_not_zero[train.idx, ]
+test.df <- cyber_not_zero[-train.idx, ]
+
+base_forest <- randomForest(LOG_SETTLEMENT_AMOUNT ~ . ,
+                            data = train.df,
+                            ntree = 1000,
+                            mtry = 3,
+                            importance = TRUE)
+predictions <- predict(base_forest, test.df)
+mean((test.df$LOG_SETTLEMENT_AMOUNT - predictions)^2)
+forest_results <- data.frame(test.df$LOG_SETTLEMENT_AMOUNT, predictions)
+plot(test.df$LOG_SETTLEMENT_AMOUNT, ((test.df$LOG_SETTLEMENT_AMOUNT-predictions)^2), main = "Scatterplot of Results",
+     xlab = "Log Settlement Amount", ylab = "Squared Error")
+
+# Histogram of Non Zero Log Settlement Amounts
+hist(cyber_not_zero$LOG_SETTLEMENT_AMOUNT)
+# Looks pretty normal, going to try a Linear Regression
+
+### OLR
+
+lin_m0 <- lm(LOG_SETTLEMENT_AMOUNT ~ ., data = train.df, )
+
+#Dropping NAIC Sector
+lin_m1 <- lm(LOG_SETTLEMENT_AMOUNT ~ CASE_TYPE + CLASS_COLLECTIVE_ACTION +
+             CASESTATUS + JURIS_TRIGGER + LOG_EMPLOYEES + LOG_REVENUES + COMPANY_STATUS,
+             data = train.df)
+
+predictions_lin <- predict(lin_m1, test.df)
+mean((test.df$LOG_SETTLEMENT_AMOUNT - predictions_lin)^2)
+plot(test.df$LOG_SETTLEMENT_AMOUNT, ((test.df$LOG_SETTLEMENT_AMOUNT-predictions_lin)^2), main = "Scatterplot of Results",
+     xlab = "Log Settlement Amount", ylab = "Squared Error")
